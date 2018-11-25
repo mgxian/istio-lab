@@ -4,7 +4,7 @@
     <button @click="handleClick">发射</button>
     <!-- <p>{{ message }}</p> -->
     <div id="service-graph">
-      <v-chart ref="chart1" :options="orgOptions" :auto-resize="true"></v-chart>
+      <v-chart ref="chart1" :options="graphOptions" :auto-resize="true"></v-chart>
     </div>
   </div>
 </template>
@@ -23,7 +23,7 @@ export default {
     return {
       msg: 'Welcome to Your Vue.js App',
       message: '',
-      orgOptions: {},
+      graphOptions: {},
       serviceNodes: [],
       serviceLinks: [],
       serviceCall: {
@@ -42,7 +42,6 @@ export default {
           }
         ]
       },
-      firstNodePos: [300, 300]
     }
   },
   methods: {
@@ -90,7 +89,7 @@ export default {
     setChar() {
       this.getServiceNodesAndLinks()
       // console.log(this.serviceNodes, this.serviceLinks)
-      this.orgOptions = {
+      this.graphOptions = {
         series: [
           {
             type: 'graph',

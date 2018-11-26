@@ -1,6 +1,9 @@
 <template>
   <div class="hello">
-    <h1>{{ msg }}</h1>
+    <div>
+      <img src="../assets/logo.png">
+      <h1>{{ msg }}</h1>
+    </div>
     <button @click="handleClick">发射</button>
     <!-- <p>{{ message }}</p> -->
     <div id="service-graph">
@@ -41,12 +44,12 @@ export default {
             ]
           }
         ]
-      },
+      }
     }
   },
   methods: {
     handleClick() {
-      let url = 'http://istio-test.will/env'
+      let url = '/env'
       axios.defaults.headers.common['App-Client'] = 'vue'
       axios
         .get(url)
@@ -88,7 +91,7 @@ export default {
     },
     setChar() {
       this.getServiceNodesAndLinks()
-      // console.log(this.serviceNodes, this.serviceLinks)
+      console.log(this.serviceNodes, this.serviceLinks)
       this.graphOptions = {
         series: [
           {
@@ -159,5 +162,6 @@ a {
 
 .echarts {
   width: 100%;
+  height: 500px;
 }
 </style>

@@ -10,9 +10,8 @@ class App extends Component {
     this.state = {
       message: '',
       graphOptions: {},
-      serviceNodes: [],
-      serviceLinks: [],
-      serviceCall: {
+      serviceCall: {},
+      serviceCallMockData: {
         message: 'python-python',
         upstream: [
           {
@@ -36,64 +35,60 @@ class App extends Component {
   }
 
   handleClick() {
-    let url = "http://istio-test.will/env"
+    let url = "/env"
     axios.defaults.headers.common['App-Client'] = "react"
-    axios.get(url).then(res => {
-      this.setState(() => {
-        return { message: 'react----->' + res.data.message }
+    axios.get(url, { timeout: 15000 }).then(res => {
+      this.setState({ 
+          message: 'react -----> ' + res.data.message,
+          serviceCall: res.data
+      }, () => {
+        this.setChar();
       });
     }).catch(error => {
       console.log(error)
     });
-    this.setChar();
-    console.log(this.state.serviceNodes, this.state.serviceLinks)
+    // this.setState({
+    //   serviceCall: this.state.serviceCallMockData
+    // },() => {
+    //   this.setChar();
+    // });
   }
 
-  parseServiceCall(data) {
+  parseServiceCall(data, result) {
+
     if (data.upstream) {
       data.upstream.forEach(upstream => {
-        let message = this.parseServiceCall(upstream)
-        let link = { source: data.message, target: message }
-        this.setState((state) => {
-          return {serviceLinks: [...state.serviceLinks, link]}
-        });
-        
+        let link = { source: data.message, target: upstream.message }
+        // console.log(link)
+        result.links = [link, ...result.links]
+        this.parseServiceCall(upstream, result)
       })
     }
 
     let node = { name: data.message }
     // console.log(node)
-    this.setState((state) => {
-      return {serviceNodes: [...state.serviceNodes, node]}
-    });
+    result.nodes = [...result.nodes, node]
 
-    return data.message
+    return result
   }
 
   getServiceNodesAndLinks() {
-    this.setState(() => {
-      return {
-        serviceNodes: [],
-        serviceLinks: []
-      }
-    });
-    let ret = this.parseServiceCall(this.state.serviceCall)
+    let result = { nodes: [], links: [] }
+    let ret = this.parseServiceCall(this.state.serviceCall, result)
     let node = { name: 'react' }
     let link = {
       source: 'react',
-      target: ret
+      target: ret.nodes[ret.nodes.length-1].name
     }
-    this.setState((state) => {
-      return {
-        serviceNodes: [...state.serviceNodes, node],
-        serviceLinks: [...state.serviceLinks, link]
-      }
-    });
+    ret.nodes = [...ret.nodes, node];
+    ret.links.push(link);
+
+    console.log(ret)
+    return ret
   }
 
   setChar() {
-    this.getServiceNodesAndLinks()
-    // console.log(this.serviceNodes, this.serviceLinks)
+    let ret = this.getServiceNodesAndLinks()
     let graphOptions = {
       series: [
         {
@@ -111,7 +106,7 @@ class App extends Component {
               }
             }
           },
-          color: '#41B783',
+          color: '#60D6F7',
           edgeSymbol: ['circle', 'arrow'],
           edgeSymbolSize: [4, 15],
           edgeLabel: {
@@ -121,8 +116,8 @@ class App extends Component {
               }
             }
           },
-          data: this.state.serviceNodes,
-          links: this.state.serviceLinks,
+          data: ret.nodes,
+          links: ret.links,
           lineStyle: {
             normal: {
               opacity: 0.9,
@@ -133,8 +128,8 @@ class App extends Component {
         }
       ]
     }
-    this.setState(() => {
-      return { graphOptions: graphOptions }
+    this.setState({ graphOptions: graphOptions }, () => {
+      // console.log(this.state.graphOptions)
     });
   }
   render() {
@@ -147,10 +142,8 @@ class App extends Component {
         <p className="App-intro">
           <button onClick={this.handleClick}>发射</button>
         </p>
-        <p>
-          {this.state.message}
-        </p>
-        <ReactEcharts option={this.state.graphOptions} style={{width: '100%'}} />
+        {/* <p>{this.state.message}</p> */}
+        <ReactEcharts option={this.state.graphOptions} style={{width: '100%', height: 500}} />
       </div>
     );
   }

@@ -36,21 +36,31 @@ router.get('/status', async (ctx, next) => {
 
 router.get('/env', async (ctx, next) => {
     forwardHeaders = getForwardHeaders(ctx.request)
+    // service_go_url = 'http://httpbin.org/delay/10'
     service_go_url = 'http://' + 'service-go' + '/env'
+    upstream_ret = ''
     try {
         // console.log(forwardHeaders)
         // upstream_ret = JSON.parse('{"message": "go v1"}')
         const response = await axios.get(service_go_url, {
-            headers: forwardHeaders
+            headers: forwardHeaders,
+            timeout: 15000
         });
         upstream_ret = response.data
-        console.log(upstream_ret);
+    } catch (error) {
+        console.error('error');
+    }
+    if (upstream_ret) {
+        // console.log(upstream_ret);
         ctx.body = {
             'message': 'node v2',
             'upstream': [upstream_ret]
         };
-    } catch (error) {
-        console.error(error);
+    } else {
+        ctx.body = {
+            'message': 'node v2',
+            'upstream': []
+        }
     }
 })
 

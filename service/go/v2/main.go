@@ -1,8 +1,6 @@
 package main
 
 import (
-	"runtime"
-
 	"log"
 
 	"github.com/gin-gonic/gin"
@@ -35,7 +33,7 @@ func main() {
 	r.Use(TraceMiddleware())
 	r.GET("/env", func(c *gin.Context) {
 		c.JSON(200, gin.H{
-			"message": "Go" + runtime.Version(),
+			"message": "go v2",
 		})
 	})
 	r.GET("/status", func(c *gin.Context) {

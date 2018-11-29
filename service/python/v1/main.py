@@ -1,5 +1,4 @@
 from flask import Flask, jsonify, g, request
-import platform
 import requests
 import logging
 
@@ -44,7 +43,7 @@ def env():
     data_node = resp.json()
 
     return jsonify({
-        "message": 'Python' + platform.python_version(),
+        "message": 'python v1',
         "upstream": [data_lua, data_node]
     })
 

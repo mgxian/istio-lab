@@ -45,9 +45,8 @@ router.get('/env', async (ctx, next) => {
         });
         upstream_ret = response.data
         console.log(upstream_ret);
-        const version = process.versions.node;
         ctx.body = {
-            'message': 'node' + version,
+            'message': 'node v2',
             'upstream': [upstream_ret]
         };
     } catch (error) {

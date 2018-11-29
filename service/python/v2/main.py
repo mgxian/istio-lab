@@ -1,5 +1,4 @@
 from apistar import App, Route, http
-import platform
 import requests
 import logging
 
@@ -37,7 +36,7 @@ def env(request: http.Request):
     data_node = resp.json()
 
     return {
-        "message": 'Python' + platform.python_version(),
+        "message": 'python v2',
         "upstream": [data_lua, data_node]
     }
 

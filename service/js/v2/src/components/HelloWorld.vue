@@ -62,7 +62,7 @@ export default {
       axios
         .get(url, { timeout: 20000 })
         .then(res => {
-          this.response_time = ((Date.now() - start) / 1000).toFixed(1)
+          this.response_time = ((Date.now() - start) / 1000).toFixed(2)
           this.message = 'vue -----> ' + res.data.message
           this.serviceCall = res.data
           this.setChar()
@@ -70,7 +70,7 @@ export default {
         .catch(error => {
           console.log(error)
           // this.serviceCall = this.serviceCallMockData
-          // this.response_time = ((Date.now() - start) / 1000).toFixed(1)
+          // this.response_time = ((Date.now() - start) / 1000).toFixed(2)
           // this.setChar()
         })
     },

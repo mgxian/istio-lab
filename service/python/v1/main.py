@@ -38,7 +38,7 @@ def get_url_response(url, headers={}):
     try:
         start = time.time()
         resp = requests.get(url, headers=headers, timeout=20)
-        response_time = round(time.time() - start, 1)
+        response_time = round(time.time() - start, 2)
         data = resp.json()
         data['response_time'] = response_time
     except Exception as e:

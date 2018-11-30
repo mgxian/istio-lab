@@ -43,7 +43,7 @@ class App extends Component {
     axios.defaults.headers.common['App-Client'] = "react"
     let start = Date.now()
     axios.get(url, { timeout: 20000 }).then(res => {
-      let response_time = ((Date.now() - start) / 1000).toFixed(1)
+      let response_time = ((Date.now() - start) / 1000).toFixed(2)
       this.setState({ 
           message: 'react -----> ' + res.data.message,
           serviceCall: res.data,

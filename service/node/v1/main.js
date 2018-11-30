@@ -47,7 +47,7 @@ router.get('/env', async (ctx, next) => {
             headers: forwardHeaders,
             timeout: 20000
         });
-        response_time = ((Date.now() - start) / 1000).toFixed(1)
+        response_time = ((Date.now() - start) / 1000).toFixed(2)
         upstream_ret = response.data
         upstream_ret.response_time = response_time
     } catch (error) {

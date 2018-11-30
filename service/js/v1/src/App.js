@@ -9,24 +9,28 @@ class App extends Component {
     super(props);
     this.state = {
       message: '',
+      response_time: 0,
       graphOptions: {},
       serviceCall: {},
       serviceCallMockData: {
         message: 'python-python',
         upstream: [
           {
-            message: 'lua'
+            message: 'lua',
+            response_time: 2
           },
           {
             message: 'node',
+            response_time: 3,
             upstream: [
               {
-                message: 'go'
+                message: 'go',
+                response_time: 1
               }
             ]
           }
         ]
-      },
+      }
     };
     this.handleClick = this.handleClick.bind(this);
     this.parseServiceCall = this.parseServiceCall.bind(this);
@@ -37,28 +41,35 @@ class App extends Component {
   handleClick() {
     let url = "/env"
     axios.defaults.headers.common['App-Client'] = "react"
-    axios.get(url, { timeout: 15000 }).then(res => {
+    let start = Date.now()
+    axios.get(url, { timeout: 20000 }).then(res => {
+      let response_time = ((Date.now() - start) / 1000).toFixed(1)
       this.setState({ 
           message: 'react -----> ' + res.data.message,
-          serviceCall: res.data
+          serviceCall: res.data,
+          response_time: response_time
       }, () => {
         this.setChar();
       });
     }).catch(error => {
       console.log(error)
+      this.setState({
+        serviceCall: this.state.serviceCallMockData
+      },() => {
+        this.setChar();
+      });
     });
-    // this.setState({
-    //   serviceCall: this.state.serviceCallMockData
-    // },() => {
-    //   this.setChar();
-    // });
   }
 
   parseServiceCall(data, result) {
-
     if (data.upstream) {
       data.upstream.forEach(upstream => {
-        let link = { source: data.message, target: upstream.message }
+        let link = { 
+          source: data.message,
+          target: upstream.message,
+          value: upstream.response_time,
+          label: { show: true, formatter: '{c}s' }
+        }
         // console.log(link)
         result.links = [link, ...result.links]
         this.parseServiceCall(upstream, result)
@@ -78,7 +89,10 @@ class App extends Component {
     let node = { name: 'react' }
     let link = {
       source: 'react',
-      target: ret.nodes[ret.nodes.length-1].name
+      target: ret.nodes[ret.nodes.length-1].name,
+      value: this.state.response_time,
+      // value: Math.ceil(Math.random()*10),
+      label: { show: true, formatter: '{c}s' }
     }
     ret.nodes = [...ret.nodes, node];
     ret.links.push(link);
@@ -99,31 +113,26 @@ class App extends Component {
           symbolSize: 90,
           roam: false,
           label: {
-            normal: {
-              show: true,
-              textStyle: {
-                fontSize: 16
-              }
+            show: true,
+            textStyle: {
+              fontSize: 16
             }
           },
           color: '#60D6F7',
           edgeSymbol: ['circle', 'arrow'],
           edgeSymbolSize: [4, 15],
           edgeLabel: {
-            normal: {
-              textStyle: {
-                fontSize: 15
-              }
+            textStyle: {
+              fontSize: 15
             }
           },
           data: ret.nodes,
           links: ret.links,
           lineStyle: {
-            normal: {
-              opacity: 0.9,
-              width: 3,
-              curveness: 0
-            }
+            opacity: 0.9,
+            width: 3,
+            curveness: 0
+
           }
         }
       ]

@@ -7,7 +7,11 @@
     <button @click="handleClick">发射</button>
     <!-- <p>{{ message }}</p> -->
     <div id="service-graph">
-      <v-chart ref="chart1" :options="graphOptions" :auto-resize="true"></v-chart>
+      <v-chart
+        ref="chart1"
+        :options="graphOptions"
+        :auto-resize="true"
+      ></v-chart>
     </div>
   </div>
 </template>
@@ -27,19 +31,22 @@ export default {
       msg: 'Welcome to Your Vue.js App',
       message: '',
       graphOptions: {},
-      serviceNodes: [],
-      serviceLinks: [],
-      serviceCall: {
+      response_time: 0,
+      serviceCall: {},
+      serviceCallMockData: {
         message: 'python-python',
         upstream: [
           {
-            message: 'lua'
+            message: 'lua',
+            response_time: 2
           },
           {
             message: 'node',
+            response_time: 3,
             upstream: [
               {
-                message: 'go'
+                message: 'go',
+                response_time: 1
               }
             ]
           }
@@ -51,47 +58,64 @@ export default {
     handleClick() {
       let url = '/env'
       axios.defaults.headers.common['App-Client'] = 'vue'
+      let start = Date.now()
       axios
-        .get(url)
+        .get(url, { timeout: 20000 })
         .then(res => {
+          this.response_time = ((Date.now() - start) / 1000).toFixed(1)
           this.message = 'vue -----> ' + res.data.message
           this.serviceCall = res.data
           this.setChar()
         })
         .catch(error => {
           console.log(error)
+          // this.serviceCall = this.serviceCallMockData
+          // this.response_time = ((Date.now() - start) / 1000).toFixed(1)
+          // this.setChar()
         })
-      // this.setChar()
     },
-    parseServiceCall(data) {
+    parseServiceCall(data, result) {
       if (data.upstream) {
         data.upstream.forEach(upstream => {
-          let message = this.parseServiceCall(upstream)
-          let link = { source: data.message, target: message }
-          this.serviceLinks.push(link)
+          let link = {
+            source: data.message,
+            target: upstream.message,
+            value: upstream.response_time,
+            label: { show: true, formatter: '{c}s' }
+          }
+          // console.log(link)
+          result.links = [link, ...result.links]
+          this.parseServiceCall(upstream, result)
         })
       }
 
       let node = { name: data.message }
-      this.serviceNodes.push(node)
+      // console.log(node)
+      result.nodes = [...result.nodes, node]
 
-      return data.message
+      return result
     },
+
     getServiceNodesAndLinks() {
-      this.serviceNodes = []
-      this.serviceLinks = []
-      let ret = this.parseServiceCall(this.serviceCall)
+      let result = { nodes: [], links: [] }
+      let ret = this.parseServiceCall(this.serviceCall, result)
       let node = { name: 'vue' }
       let link = {
         source: 'vue',
-        target: ret
+        target: ret.nodes[ret.nodes.length - 1].name,
+        value: this.response_time,
+        // value: Math.ceil(Math.random()*10),
+        label: { show: true, formatter: '{c}s' }
       }
-      this.serviceNodes.push(node)
-      this.serviceLinks.push(link)
+      ret.nodes = [...ret.nodes, node]
+      ret.links.push(link)
+
+      console.log(ret)
+      return ret
     },
+
     setChar() {
-      this.getServiceNodesAndLinks()
-      console.log(this.serviceNodes, this.serviceLinks)
+      let ret = this.getServiceNodesAndLinks()
       this.graphOptions = {
         series: [
           {
@@ -102,31 +126,25 @@ export default {
             symbolSize: 90,
             roam: false,
             label: {
-              normal: {
-                show: true,
-                textStyle: {
-                  fontSize: 16
-                }
+              show: true,
+              textStyle: {
+                fontSize: 16
               }
             },
             color: '#41B783',
             edgeSymbol: ['circle', 'arrow'],
             edgeSymbolSize: [4, 15],
             edgeLabel: {
-              normal: {
-                textStyle: {
-                  fontSize: 15
-                }
+              textStyle: {
+                fontSize: 15
               }
             },
-            data: this.serviceNodes,
-            links: this.serviceLinks,
+            data: ret.nodes,
+            links: ret.links,
             lineStyle: {
-              normal: {
-                opacity: 0.9,
-                width: 3,
-                curveness: 0
-              }
+              opacity: 0.9,
+              width: 3,
+              curveness: 0
             }
           }
         ]

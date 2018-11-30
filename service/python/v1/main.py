@@ -34,17 +34,33 @@ def before_request():
 
 @app.route("/env")
 def env():
-    service_lua_url = 'http://' + 'service-lua' + '/env'
-    resp = requests.get(service_lua_url, headers=g.forwardHeaders)
-    data_lua = resp.json()
+    try:
+        service_lua_url = 'http://' + 'service-lua' + '/env'
+        resp = requests.get(
+            service_lua_url, headers=g.forwardHeaders, timeout=15)
+        data_lua = resp.json()
+    except Exception as e:
+        print(e)
+        data_lua = None
 
-    service_node_url = 'http://' + 'service-node' + '/env'
-    resp = requests.get(service_node_url, headers=g.forwardHeaders)
-    data_node = resp.json()
+    try:
+        service_node_url = 'http://' + 'service-node' + '/env'
+        resp = requests.get(
+            service_node_url, headers=g.forwardHeaders, timeout=15)
+        data_node = resp.json()
+    except Exception as e:
+        print(e)
+        data_node = None
+
+    upstream = []
+    if data_lua:
+        upstream.append(data_lua)
+    if data_node:
+        upstream.append(data_node)
 
     return jsonify({
         "message": 'python v1',
-        "upstream": [data_lua, data_node]
+        "upstream": upstream
     })
 
 

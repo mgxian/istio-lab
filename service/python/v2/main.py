@@ -1,6 +1,5 @@
 from apistar import App, Route, http
 import requests
-import logging
 
 
 def getForwardHeaders(request):
@@ -27,17 +26,33 @@ def getForwardHeaders(request):
 def env(request: http.Request):
     forwardHeaders = getForwardHeaders(request)
 
-    service_lua_url = 'http://' + 'service-lua' + '/env'
-    resp = requests.get(service_lua_url, headers=forwardHeaders)
-    data_lua = resp.json()
+    try:
+        service_lua_url = 'http://' + 'service-lua' + '/env'
+        resp = requests.get(
+            service_lua_url, headers=forwardHeaders, timeout=15)
+        data_lua = resp.json()
+    except Exception as e:
+        print(e)
+        data_lua = None
 
-    service_node_url = 'http://' + 'service-node' + '/env'
-    resp = requests.get(service_node_url, headers=forwardHeaders)
-    data_node = resp.json()
+    try:
+        service_node_url = 'http://' + 'service-node' + '/env'
+        resp = requests.get(
+            service_node_url, headers=forwardHeaders, timeout=15)
+        data_node = resp.json()
+    except Exception as e:
+        print(e)
+        data_node = None
+
+    upstream = []
+    if data_lua:
+        upstream.append(data_lua)
+    if data_node:
+        upstream.append(data_node)
 
     return {
         "message": 'python v2',
-        "upstream": [data_lua, data_node]
+        "upstream": upstream
     }
 
 
@@ -51,7 +66,5 @@ routes = [
 ]
 
 app = App(routes=routes)
-logging.basicConfig(level=logging.DEBUG)
-
 if __name__ == '__main__':
-    app.serve('0.0.0.0', 80, debug=True)
+    app.serve('0.0.0.0', 80, debug=False)

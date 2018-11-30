@@ -38,15 +38,18 @@ router.get('/env', async (ctx, next) => {
     forwardHeaders = getForwardHeaders(ctx.request)
     // service_go_url = 'http://httpbin.org/delay/10'
     service_go_url = 'http://' + 'service-go' + '/env'
-    upstream_ret = ''
+    upstream_ret = {}
     try {
         // console.log(forwardHeaders)
         // upstream_ret = JSON.parse('{"message": "go v1"}')
+        let start = Date.now()
         const response = await axios.get(service_go_url, {
             headers: forwardHeaders,
-            timeout: 15000
+            timeout: 20000
         });
+        response_time = ((Date.now() - start) / 1000).toFixed(1)
         upstream_ret = response.data
+        upstream_ret.response_time = response_time
     } catch (error) {
         console.error('error');
     }

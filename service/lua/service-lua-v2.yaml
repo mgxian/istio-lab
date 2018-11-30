@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service-lua-v2
+spec:
+  selector:
+    matchLabels:
+      app: service-lua
+      version: v2
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: service-lua
+        version: v2
+    spec:
+      restartPolicy: Always
+      containers:
+      - name: service-lua
+        image: registry.cn-shanghai.aliyuncs.com/istio-lab/service-lua:v2
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: 50m
+            memory: 50Mi
+          limits:
+            cpu: 100m
+            memory: 100Mi

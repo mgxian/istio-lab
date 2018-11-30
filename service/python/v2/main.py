@@ -1,5 +1,8 @@
-from apistar import App, Route, http
+import time
 import requests
+from functools import partial
+from apistar import App, Route, http
+from multiprocessing.dummy import Pool as ThreadPool
 
 
 def getForwardHeaders(request):
@@ -23,32 +26,33 @@ def getForwardHeaders(request):
     return headers
 
 
+def get_url_response(url, headers={}):
+    try:
+        start = time.time()
+        resp = requests.get(url, headers=headers, timeout=20)
+        response_time = round(time.time() - start, 1)
+        data = resp.json()
+        data['response_time'] = response_time
+    except Exception as e:
+        print(e)
+        data = None
+    return data
+
+
 def env(request: http.Request):
     forwardHeaders = getForwardHeaders(request)
 
-    try:
-        service_lua_url = 'http://' + 'service-lua' + '/env'
-        resp = requests.get(
-            service_lua_url, headers=forwardHeaders, timeout=15)
-        data_lua = resp.json()
-    except Exception as e:
-        print(e)
-        data_lua = None
+    # service_lua_url = 'http://' + 'service-lua' + '/env'
+    # service_node_url = 'http://' + 'service-node' + '/env'
 
-    try:
-        service_node_url = 'http://' + 'service-node' + '/env'
-        resp = requests.get(
-            service_node_url, headers=forwardHeaders, timeout=15)
-        data_node = resp.json()
-    except Exception as e:
-        print(e)
-        data_node = None
+    service_lua_url = 'http://httpbin.org/delay/3'
+    service_node_url = 'http://httpbin.org/delay/4'
 
-    upstream = []
-    if data_lua:
-        upstream.append(data_lua)
-    if data_node:
-        upstream.append(data_node)
+    services_url = [service_lua_url, service_node_url]
+    pool = ThreadPool(2)
+    wrap_get_url_response = partial(get_url_response, headers=forwardHeaders)
+    results = pool.map(wrap_get_url_response, services_url)
+    upstream = [r for r in results if r]
 
     return {
         "message": 'python v2',

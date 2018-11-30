@@ -49,11 +49,11 @@ def get_url_response(url, headers={}):
 
 @app.route("/env")
 def env():
-    service_lua_url = 'http://' + 'service-lua' + '/env'
-    service_node_url = 'http://' + 'service-node' + '/env'
-
     # service_lua_url = 'http://httpbin.org/delay/3'
     # service_node_url = 'http://httpbin.org/delay/4'
+
+    service_lua_url = 'http://' + 'service-lua' + '/env'
+    service_node_url = 'http://' + 'service-node' + '/env'
 
     services_url = [service_lua_url, service_node_url]
     pool = ThreadPool(2)

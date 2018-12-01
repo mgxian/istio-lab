@@ -13,21 +13,21 @@ class App extends Component {
       graphOptions: {},
       serviceCall: {},
       serviceCallMockData: {
-        message: 'python-python',
+        message: 'python v2',
         upstream: [
           {
-            message: 'lua',
-            response_time: 2
+            message: 'lua v1',
+            response_time: 0.1
           },
           {
-            message: 'node',
-            response_time: 3,
+            message: 'node v2',
             upstream: [
               {
-                message: 'go',
-                response_time: 1
+                message: 'go v1',
+                response_time: '0.01'
               }
-            ]
+            ],
+            response_time: 0.1
           }
         ]
       }
@@ -53,11 +53,11 @@ class App extends Component {
       });
     }).catch(error => {
       console.log(error)
-      this.setState({
-        serviceCall: this.state.serviceCallMockData
-      },() => {
-        this.setChar();
-      });
+      // this.setState({
+      //   serviceCall: this.state.serviceCallMockData
+      // },() => {
+      //   this.setChar();
+      // });
     });
   }
 

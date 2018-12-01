@@ -7,11 +7,7 @@
     <button @click="handleClick">发射</button>
     <!-- <p>{{ message }}</p> -->
     <div id="service-graph">
-      <v-chart
-        ref="chart1"
-        :options="graphOptions"
-        :auto-resize="true"
-      ></v-chart>
+      <v-chart ref="chart1" :options="graphOptions" :auto-resize="true"></v-chart>
     </div>
   </div>
 </template>
@@ -34,21 +30,21 @@ export default {
       response_time: 0,
       serviceCall: {},
       serviceCallMockData: {
-        message: 'python-python',
+        message: 'python v2',
         upstream: [
           {
-            message: 'lua',
-            response_time: 2
+            message: 'lua v1',
+            response_time: 0.1
           },
           {
-            message: 'node',
-            response_time: 3,
+            message: 'node v2',
             upstream: [
               {
-                message: 'go',
-                response_time: 1
+                message: 'go v1',
+                response_time: '0.01'
               }
-            ]
+            ],
+            response_time: 0.1
           }
         ]
       }

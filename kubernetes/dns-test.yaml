@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: dns-test
+spec:
+  containers:
+  - image: radial/busyboxplus:curl
+    name: dns-test
+    stdin: true
+    tty: true

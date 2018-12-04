@@ -16,7 +16,8 @@ spec:
      number: 443
      name: tls
      protocol: TLS
+   tls:
+     mode: PASSTHROUGH
    hosts:
    - "*"
-   tls:
-      mode: PASSTHROUGH
+   

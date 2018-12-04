@@ -1,0 +1,31 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: service-node
+spec:
+  host: service-node
+  subsets:
+  - name: v1
+    labels:
+      version: v1
+  - name: v2
+    labels:
+      version: v2
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: service-node
+spec:
+  hosts:
+  - service-node
+  http:
+  - route:
+    - destination:
+        host: service-node
+        subset: v1
+      weight: 20
+    - destination:
+        host: service-node
+        subset: v2
+      weight: 80

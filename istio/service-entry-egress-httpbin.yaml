@@ -15,7 +15,7 @@ spec:
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
-  name: gateway-routing-http
+  name: gateway-routing-http-httpbin
 spec:
   hosts:
   - httpbin.org

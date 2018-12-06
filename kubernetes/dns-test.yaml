@@ -8,3 +8,10 @@ spec:
     name: dns-test
     stdin: true
     tty: true
+    resources:
+      requests:
+        cpu: 50m
+        memory: 50Mi
+      limits:
+        cpu: 100m
+        memory: 100Mi

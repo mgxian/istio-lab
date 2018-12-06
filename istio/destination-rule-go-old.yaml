@@ -1,0 +1,19 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: service-go
+spec:
+  host: service-go
+  trafficPolicy:
+    outlierDetection:
+      consecutiveErrors: 7
+      interval: 5m
+      baseEjectionTime: 15m
+      maxEjectionPercent: 10
+  subsets:
+  - name: v1
+    labels:
+      version: v1
+  - name: v2
+    labels:
+      version: v2

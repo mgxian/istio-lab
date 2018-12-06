@@ -1,0 +1,23 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: service-go
+spec:
+  host: service-go
+  trafficPolicy:
+    connectionPool:
+      tcp:
+        maxConnections: 100
+        connectTimeout: 30ms
+      http:
+        http2MaxRequests: 100
+        http1MaxPendingRequests: 50
+        maxRequestsPerConnection: 1024
+        maxRetries: 3
+  subsets:
+  - name: v1
+    labels:
+      version: v1
+  - name: v2
+    labels:
+      version: v2

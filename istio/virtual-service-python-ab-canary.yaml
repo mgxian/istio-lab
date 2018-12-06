@@ -1,0 +1,79 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: istio-lab-gateway
+spec:
+  selector:
+    istio: ingressgateway # use Istio default gateway implementation
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "*"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: service-js
+spec:
+  host: service-js
+  subsets:
+  - name: v1
+    labels:
+      version: v1
+  - name: v2
+    labels:
+      version: v2
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: service-python
+spec:
+  host: service-python
+  subsets:
+  - name: v1
+    labels:
+      version: v1
+  - name: v2
+    labels:
+      version: v2
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: istio-lab
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - istio-lab-gateway
+  http:
+  - match:
+    - uri:
+        prefix: /env
+      headers:
+        user-agent:
+          regex: ".*?(Firefox).*?"
+    route:
+    - destination:
+        host: service-python
+        subset: v1
+      weight: 70
+    - destination:
+        host: service-python
+        subset: v2
+      weight: 30
+  - match:
+    - uri:
+        prefix: /env
+    route:
+    - destination:
+        host: service-python
+        subset: v1
+  - route:
+    - destination:
+        host: service-js
+        subset: v1

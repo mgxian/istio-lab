@@ -6,13 +6,10 @@ spec:
   host: service-go
   trafficPolicy:
     connectionPool:
-      tcp:
-        maxConnections: 100
-        connectTimeout: 30ms
       http:
-        http2MaxRequests: 100
-        http1MaxPendingRequests: 50
-        maxRequestsPerConnection: 1024
+        http2MaxRequests: 10
+        http1MaxPendingRequests: 5
+        maxRequestsPerConnection: 2
         maxRetries: 3
   subsets:
   - name: v1

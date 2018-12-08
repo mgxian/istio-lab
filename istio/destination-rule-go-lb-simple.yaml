@@ -21,7 +21,4 @@ spec:
       - port:
           number: 80
         loadBalancer:
-          consistentHash:
-          httpCookie:
-            name: user
-            ttl: 0s
+          simple: RANDOM

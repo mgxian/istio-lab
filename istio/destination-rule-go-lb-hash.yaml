@@ -5,11 +5,9 @@ metadata:
 spec:
   host: service-go
   trafficPolicy:
-    outlierDetection:
-      consecutiveErrors: 3
-      interval: 10s
-      baseEjectionTime: 30s
-      maxEjectionPercent: 10
+    loadBalancer:
+      consistentHash:
+        httpHeaderName: x-lb-test
   subsets:
   - name: v1
     labels:

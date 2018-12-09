@@ -8,26 +8,18 @@ spec:
   - name: requestcount.quota.istio-system
     maxAmount: 500
     validDuration: 1s
-    # The first matching override is applied.
-    # A requestcount instance is checked against override dimensions.
     overrides:
-    # The following override applies to 'reviews' regardless
-    # of the source.
     - dimensions:
-        destination: reviews
+        destination: service-lua
       maxAmount: 1
       validDuration: 5s
-    # The following override applies to 'productpage' when
-    # the source is a specific ip address.
     - dimensions:
-        destination: productpage
+        destination: service-python
         source: "10.28.11.20"
       maxAmount: 500
       validDuration: 1s
-    # The following override applies to 'productpage' regardless
-    # of the source.
     - dimensions:
-        destination: productpage
+        destination: service-python
       maxAmount: 2
       validDuration: 5s
 ---
@@ -41,6 +33,17 @@ spec:
     source: request.headers["x-forwarded-for"] | "unknown"
     destination: destination.labels["app"] | destination.service | "unknown"
     destinationVersion: destination.labels["version"] | "unknown"
+---
+apiVersion: config.istio.io/v1alpha2
+kind: rule
+metadata:
+  name: quota
+  namespace: istio-system
+spec:
+  actions:
+  - handler: handler.memquota
+    instances:
+    - requestcount.quota
 ---
 apiVersion: config.istio.io/v1alpha2
 kind: QuotaSpec
@@ -63,18 +66,7 @@ spec:
   - name: request-count
     namespace: istio-system
   services:
-  - name: productpage
+  - name: service-python
     namespace: default
-    #  - service: '*'  # Uncomment this to bind *all* services to request-count
----
-apiVersion: config.istio.io/v1alpha2
-kind: rule
-metadata:
-  name: quota
-spec:
-  # quota only applies if you are not logged in.
-  # match: match(request.headers["cookie"], "user=*") == false
-  actions:
-  - handler: handler.memquota
-    instances:
-    - requestcount.quota
+  - name: service-lua
+    namespace: default

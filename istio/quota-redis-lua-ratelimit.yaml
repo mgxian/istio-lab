@@ -4,36 +4,25 @@ metadata:
   name: handler
   namespace: istio-system
 spec:
+  redisServerUrl: redis-ratelimit.istio-system:6379
+  connectionPoolSize: 10
   quotas:
   - name: requestcount.quota.istio-system
     maxAmount: 500
     validDuration: 1s
     bucketDuration: 500ms
-    rateLimitAlgorithm: <rate_limit_algorithm>
-    # The first matching override is applied.
-    # A requestcount instance is checked against override dimensions.
+    rateLimitAlgorithm: FIXED_WINDOW
     overrides:
-    # The following override applies to 'reviews' regardless
-    # of the source.
     - dimensions:
-        destination: reviews
+        destination: service-lua
       maxAmount: 1
-      validDuration: 5s
-    # The following override applies to 'productpage' when
-    # the source is a specific ip address.
     - dimensions:
-        destination: productpage
+        destination: service-python
         source: "10.28.11.20"
       maxAmount: 500
-      validDuration: 1s
-    # The following override applies to 'productpage' regardless
-    # of the source.
     - dimensions:
-        destination: productpage
+        destination: service-python
       maxAmount: 2
-      validDuration: 5s
-    redisServerUrl: <redis_server_url>
-    connectionPoolSize: 10
 ---
 apiVersion: "config.istio.io/v1alpha2"
 kind: quota
@@ -52,8 +41,6 @@ metadata:
   name: quota
   namespace: istio-system
 spec:
-  # quota only applies if you are not logged in.
-  # match: match(request.headers["cookie"], "user=*") == false
   actions:
   - handler: handler.redisquota
     instances:
@@ -80,6 +67,7 @@ spec:
   - name: request-count
     namespace: istio-system
   services:
-  - name: productpage
+  - name: service-python
     namespace: default
-    #  - service: '*'  # Uncomment this to bind *all* services to request-count
+  - name: service-lua
+    namespace: default

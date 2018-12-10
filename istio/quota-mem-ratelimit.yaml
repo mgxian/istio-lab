@@ -1,28 +1,31 @@
 apiVersion: "config.istio.io/v1alpha2"
-kind: redisquota
+kind: memquota
 metadata:
   name: handler
   namespace: istio-system
 spec:
-  redisServerUrl: redis-ratelimit.istio-system:6379
-  connectionPoolSize: 10
   quotas:
   - name: requestcount.quota.istio-system
     maxAmount: 500
     validDuration: 1s
-    bucketDuration: 500ms
-    rateLimitAlgorithm: FIXED_WINDOW
     overrides:
     - dimensions:
-        destination: service-lua
-      maxAmount: 100
+        destination: service-go
+      maxAmount: 50
+      validDuration: 1s
     - dimensions:
-        destination: service-python
+        destination: service-node
         source: "10.28.11.20"
       maxAmount: 50
+      validDuration: 1s
+    - dimensions:
+        destination: service-node
+      maxAmount: 20
+      validDuration: 1s
     - dimensions:
         destination: service-python
       maxAmount: 2
+      validDuration: 5s
 ---
 apiVersion: "config.istio.io/v1alpha2"
 kind: quota
@@ -32,7 +35,7 @@ metadata:
 spec:
   dimensions:
     source: request.headers["x-forwarded-for"] | "unknown"
-    destination: destination.labels["app"] | destination.workload.name | "unknown"
+    destination: destination.labels["app"] | destination.service | "unknown"
     destinationVersion: destination.labels["version"] | "unknown"
 ---
 apiVersion: config.istio.io/v1alpha2
@@ -42,7 +45,7 @@ metadata:
   namespace: istio-system
 spec:
   actions:
-  - handler: handler.redisquota
+  - handler: handler.memquota
     instances:
     - requestcount.quota
 ---
@@ -67,7 +70,9 @@ spec:
   - name: request-count
     namespace: istio-system
   services:
-  - name: service-python
+  - name: service-go
     namespace: default
-  - name: service-lua
+  - name: service-node
+    namespace: default
+  - name: service-python
     namespace: default

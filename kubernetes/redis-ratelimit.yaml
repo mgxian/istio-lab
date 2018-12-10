@@ -34,3 +34,10 @@ spec:
         image: redis:4-alpine
         ports:
         - containerPort: 6379
+        resources:
+          requests:
+            cpu: 50m
+            memory: 50Mi
+          limits:
+            cpu: 500m
+            memory: 500Mi

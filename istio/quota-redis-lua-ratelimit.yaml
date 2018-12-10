@@ -15,11 +15,11 @@ spec:
     overrides:
     - dimensions:
         destination: service-lua
-      maxAmount: 1
+      maxAmount: 100
     - dimensions:
         destination: service-python
         source: "10.28.11.20"
-      maxAmount: 500
+      maxAmount: 50
     - dimensions:
         destination: service-python
       maxAmount: 2

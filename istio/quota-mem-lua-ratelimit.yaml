@@ -11,12 +11,12 @@ spec:
     overrides:
     - dimensions:
         destination: service-lua
-      maxAmount: 1
-      validDuration: 5s
+      maxAmount: 100
+      validDuration: 1s
     - dimensions:
         destination: service-python
         source: "10.28.11.20"
-      maxAmount: 500
+      maxAmount: 50
       validDuration: 1s
     - dimensions:
         destination: service-python

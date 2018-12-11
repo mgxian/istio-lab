@@ -1,4 +1,15 @@
 apiVersion: "config.istio.io/v1alpha2"
+kind: quota
+metadata:
+  name: requestcount
+  namespace: istio-system
+spec:
+  dimensions:
+    source: request.headers["x-forwarded-for"] | "unknown"
+    destination: destination.labels["app"] | destination.workload.name | "unknown"
+    destinationVersion: destination.labels["version"] | "unknown"
+---
+apiVersion: "config.istio.io/v1alpha2"
 kind: redisquota
 metadata:
   name: handler
@@ -10,6 +21,8 @@ spec:
   - name: requestcount.quota.istio-system
     maxAmount: 500
     validDuration: 1s
+    bucketDuration: 500ms
+    rateLimitAlgorithm: ROLLING_WINDOW
     overrides:
     - dimensions:
         destination: service-go
@@ -24,17 +37,6 @@ spec:
     - dimensions:
         destination: service-python
       maxAmount: 2
----
-apiVersion: "config.istio.io/v1alpha2"
-kind: quota
-metadata:
-  name: requestcount
-  namespace: istio-system
-spec:
-  dimensions:
-    source: request.headers["x-forwarded-for"] | "unknown"
-    destination: destination.labels["app"] | destination.workload.name | "unknown"
-    destinationVersion: destination.labels["version"] | "unknown"
 ---
 apiVersion: config.istio.io/v1alpha2
 kind: rule

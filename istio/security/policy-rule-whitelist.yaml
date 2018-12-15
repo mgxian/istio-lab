@@ -17,7 +17,7 @@ spec:
 apiVersion: config.istio.io/v1alpha2
 kind: rule
 metadata:
-  name: checkversion
+  name: check-version
 spec:
   match: destination.labels["app"] == "service-go"
   actions:

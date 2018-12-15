@@ -5,6 +5,7 @@ metadata:
 spec:
   overrides:
   - "v1"
+  entryType: STRINGS
   blacklist: false
 ---
 apiVersion: config.istio.io/v1alpha2

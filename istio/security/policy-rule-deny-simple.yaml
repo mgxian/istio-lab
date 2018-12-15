@@ -1,0 +1,25 @@
+apiVersion: config.istio.io/v1alpha2
+kind: denier
+metadata:
+  name: deny-handler
+spec:
+  status:
+    code: 7
+    message: Not allowed
+---
+apiVersion: config.istio.io/v1alpha2
+kind: checknothing
+metadata:
+  name: deny-request
+spec:
+---
+apiVersion: config.istio.io/v1alpha2
+kind: rule
+metadata:
+  name: deny-service-node-v2
+spec:
+  match: destination.labels["app"] == "service-go" && source.labels["app"] == "service-node" && source.labels["version"] == "v2"
+  actions:
+  - handler: deny-handler.denier
+    instances:
+    - deny-request.checknothing

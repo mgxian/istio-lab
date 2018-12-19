@@ -10,6 +10,6 @@ spec:
   - jwt:
       issuer: "testing@secure.istio.io"
       jwksUri: "https://raw.githubusercontent.com/istio/istio/release-1.0/security/tools/jwt/samples/jwks.json"
-      jwtHeaders:
-      - X-Auth
+      jwtParams:
+      - access_token
   principalBinding: USE_ORIGIN

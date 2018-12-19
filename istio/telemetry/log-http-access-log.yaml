@@ -1,0 +1,42 @@
+apiVersion: config.istio.io/v1alpha2
+kind: logentry
+metadata:
+  name: accesslog
+  namespace: istio-system
+spec:
+  severity: '"Default"'
+  timestamp: request.time
+  variables:
+    source_ip: source.ip | ip("0.0.0.0")
+    destination_ip: destination.ip | ip("0.0.0.0")
+    source_user: source.principal | ""
+    method: request.method | ""
+    url: request.path | ""
+    protocol: request.scheme | "http"
+    response_code: response.code | 0
+    response_size: response.size | 0
+    request_size: request.size | 0
+    latency: response.duration | "0ms"
+  monitored_resource_type: '"UNSPECIFIED"'
+---
+apiVersion: config.istio.io/v1alpha2
+kind: stdio
+metadata:
+  name: accessloghandler
+  namespace: istio-system
+spec:
+ severity_levels:
+   info: 1
+ outputAsJson: true
+---
+apiVersion: config.istio.io/v1alpha2
+kind: rule
+metadata:
+  name: accesslog-logstdio
+  namespace: istio-system
+spec:
+  match: "true"
+  actions:
+   - handler: accessloghandler.stdio
+     instances:
+     - accesslog.logentry

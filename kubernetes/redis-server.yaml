@@ -8,7 +8,7 @@ spec:
   selector:
     app: redis
   ports:
-    - name: tcp-redis
+    - name: redis
       protocol: TCP
       port: 6379
 ---
@@ -20,11 +20,13 @@ spec:
   selector:
     matchLabels:
       app: redis
+      version: v1
   replicas: 1
   template:
     metadata:
       labels:
         app: redis
+        version: v1
     spec:
       restartPolicy: Always
       containers:

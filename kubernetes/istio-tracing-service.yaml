@@ -1,0 +1,17 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: tracing
+  namespace: istio-system
+  labels:
+    app: jaeger
+spec:
+  selector:
+    app: jaeger
+  type: NodePort
+  ports:
+    - name: http-query
+      port: 80
+      protocol: TCP
+      targetPort: 16686
+      nodePort: 32144

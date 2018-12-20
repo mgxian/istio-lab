@@ -18,7 +18,7 @@ spec:
   selector:
     app: elasticsearch
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: elasticsearch
@@ -28,6 +28,9 @@ metadata:
   annotations:
     sidecar.istio.io/inject: "false"
 spec:
+  selector:
+    matchLabels:
+      app: elasticsearch
   template:
     metadata:
       labels:
@@ -78,7 +81,7 @@ spec:
   selector:
     app: fluentd-es
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: fluentd-es
@@ -88,6 +91,9 @@ metadata:
   annotations:
     sidecar.istio.io/inject: "false"
 spec:
+  selector:
+    matchLabels:
+      app: fluentd-es
   template:
     metadata:
       labels:
@@ -153,14 +159,16 @@ metadata:
   labels:
     app: kibana
 spec:
+  type: NodePort
   ports:
   - port: 5601
     protocol: TCP
     targetPort: ui
+    nodePort: 32142
   selector:
     app: kibana
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: kibana
@@ -170,6 +178,9 @@ metadata:
   annotations:
     sidecar.istio.io/inject: "false"
 spec:
+  selector:
+    matchLabels:
+      app: kibana
   template:
     metadata:
       labels:

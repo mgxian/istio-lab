@@ -1,0 +1,16 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: grafana
+  namespace: istio-system
+  labels:
+    app: grafana
+spec:
+  selector:
+    app: grafana
+  type: NodePort
+  ports:
+    - name: http-grafana
+      protocol: TCP
+      port: 3000
+      nodePort: 32143

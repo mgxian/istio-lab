@@ -6,7 +6,8 @@ metadata:
 spec:
   value: "1"
   dimensions:
-    destination_service: destination.workload.name + "." + destination.workload.namespace | "unknown"
+    destination_service: destination.service.name | "unknown"
+    destination_namespace: destination.service.namespace | "unknown"
     destination_version: destination.labels["version"] | "unknown"
     response_code: response.code | 200
   monitored_resource_type: '"UNSPECIFIED"'
@@ -23,6 +24,7 @@ spec:
     kind: COUNTER
     label_names:
     - destination_service
+    - destination_namespace
     - destination_version
     - response_code
 ---

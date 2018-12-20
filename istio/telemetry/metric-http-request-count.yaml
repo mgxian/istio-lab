@@ -1,12 +1,12 @@
 apiVersion: config.istio.io/v1alpha2
 kind: metric
 metadata:
-  name: requestcount
+  name: myrequestcount
   namespace: istio-system
 spec:
   value: "1"
   dimensions:
-    destination_service: destination.service | "unknown"
+    destination_service: destination.workload.name + "." + destination.workload.namespace | "unknown"
     destination_version: destination.labels["version"] | "unknown"
     response_code: response.code | 200
   monitored_resource_type: '"UNSPECIFIED"'
@@ -14,12 +14,12 @@ spec:
 apiVersion: config.istio.io/v1alpha2
 kind: prometheus
 metadata:
-  name: requestcounthandler
+  name: myrequestcounthandler
   namespace: istio-system
 spec:
   metrics:
   - name: request_count
-    instance_name: requestcount.metric.istio-system
+    instance_name: myrequestcount.metric.istio-system
     kind: COUNTER
     label_names:
     - destination_service
@@ -33,6 +33,6 @@ metadata:
   namespace: istio-system
 spec:
   actions:
-  - handler: requestcounthandler.prometheus
+  - handler: myrequestcounthandler.prometheus
     instances:
-    - requestcount.metric
+    - myrequestcount.metric

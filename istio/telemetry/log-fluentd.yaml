@@ -9,7 +9,7 @@ spec:
   variables:
     source: source.labels["app"] | source.workload.name | "unknown"
     user: source.principal | "unknown"
-    destination: destination.labels["app"] | destination.workload.name | "unknown"
+    destination: destination.labels["app"] | destination.service.name | "unknown"
     response_code: response.code | 0
     response_size: response.size | 0
     latency: response.duration | "0ms"
@@ -18,7 +18,7 @@ spec:
 apiVersion: config.istio.io/v1alpha2
 kind: fluentd
 metadata:
-  name: handler
+  name: fluentdhandler
   namespace: istio-system
 spec:
   address: "fluentd-es.logging:24224"
@@ -31,6 +31,6 @@ metadata:
 spec:
   match: "true"
   actions:
-   - handler: handler.fluentd
+   - handler: fluentdhandler.fluentd
      instances:
      - newlog.logentry

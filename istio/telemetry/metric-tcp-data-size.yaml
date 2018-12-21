@@ -6,7 +6,7 @@ metadata:
 spec:
   value: connection.sent.bytes | 0
   dimensions:
-    source_service: source.labels["app"] | source.service.name | "unknown"
+    source_service: source.labels["app"] | source.workload.name | "unknown"
     source_version: source.labels["version"] | "unknown"
     destination_service: destination.service.name | "unknown"
     destination_version: destination.labels["version"] | "unknown"
@@ -20,7 +20,7 @@ metadata:
 spec:
   value: connection.received.bytes | 0
   dimensions:
-    source_service: source.labels["app"] | source.service.name | "unknown"
+    source_service: source.labels["app"] | source.workload.name | "unknown"
     source_version: source.labels["version"] | "unknown"
     destination_service: destination.service.name | "unknown"
     destination_version: destination.labels["version"] | "unknown"
@@ -57,8 +57,7 @@ metadata:
   namespace: default
 spec:
   match: context.protocol == "tcp"
-         && destination.service.name == "redis"
-         && destination.service.namesapce == "default"
+         && destination.service.namespace == "default"
   actions:
   - handler: tcphandler.prometheus
     instances:

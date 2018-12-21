@@ -1,0 +1,57 @@
+package main
+
+import (
+	"log"
+
+	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis"
+)
+
+// NewClient new redis client
+func NewClient() *redis.Client {
+	client := redis.NewClient(&redis.Options{
+		Addr:     "redis:6379",
+		Password: "", // no password set
+		DB:       0,  // use default DB
+	})
+	return client
+}
+
+var incomingHeaders = []string{
+	"x-request-id",
+	"x-b3-traceid",
+	"x-b3-spanid",
+	"x-b3-parentspanid",
+	"x-b3-sampled",
+	"x-b3-flags",
+	"x-ot-span-context",
+}
+
+// TraceMiddleware add trace header
+func TraceMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		for _, h := range incomingHeaders {
+			if ih, ok := c.Request.Header[h]; ok {
+				log.Print(h, ih[0])
+			}
+		}
+		c.Next()
+	}
+}
+
+func main() {
+	r := gin.Default()
+	r.Use(TraceMiddleware())
+	client := NewClient()
+	r.GET("/env", func(c *gin.Context) {
+		val, err := client.Info().Result()
+		if err != nil {
+			log.Print(err)
+		}
+		c.String(200, val)
+	})
+	r.GET("/status", func(c *gin.Context) {
+		c.String(200, "ok")
+	})
+	r.Run(":80")
+}

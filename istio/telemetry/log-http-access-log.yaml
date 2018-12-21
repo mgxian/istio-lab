@@ -1,7 +1,7 @@
 apiVersion: config.istio.io/v1alpha2
 kind: logentry
 metadata:
-  name: accesslog
+  name: myaccesslog
   namespace: istio-system
 spec:
   severity: '"Default"'
@@ -22,7 +22,7 @@ spec:
 apiVersion: config.istio.io/v1alpha2
 kind: stdio
 metadata:
-  name: accessloghandler
+  name: myaccessloghandler
   namespace: istio-system
 spec:
  severity_levels:
@@ -32,11 +32,11 @@ spec:
 apiVersion: config.istio.io/v1alpha2
 kind: rule
 metadata:
-  name: accesslog-logstdio
+  name: myaccesslog-logstdio
   namespace: istio-system
 spec:
   match: "true"
   actions:
-   - handler: accessloghandler.stdio
+   - handler: myaccessloghandler.stdio
      instances:
-     - accesslog.logentry
+     - myaccesslog.logentry

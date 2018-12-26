@@ -1,0 +1,80 @@
+apiVersion: rbac.istio.io/v1alpha1
+kind: RbacConfig
+metadata:
+  name: default
+spec:
+  mode: 'ON_WITH_INCLUSION'
+  inclusion:
+    namespaces: 
+    - default
+---
+apiVersion: rbac.istio.io/v1alpha1
+kind: ServiceRole
+metadata:
+  name: service-go-viewer
+  namespace: default
+spec:
+  rules:
+  - services: ["service-go.default.svc.cluster.local"]
+    methods: ["GET"]
+---
+apiVersion: rbac.istio.io/v1alpha1
+kind: ServiceRoleBinding
+metadata:
+  name: bind-service-go-viewer
+  namespace: default
+spec:
+  subjects:
+  - properties:
+      source.namespace: "istio-system"
+  - properties:
+      source.namespace: "default"
+  - properties:
+      source.namespace: "testing"
+  roleRef:
+    kind: ServiceRole
+    name: "service-go-viewer"
+---
+apiVersion: authentication.istio.io/v1alpha1
+kind: Policy
+metadata:
+  name: service-go
+spec:
+  targets:
+  - name: service-go
+  peers:
+  - mtls: {}
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: service-go
+spec:
+  host: service-go
+  trafficPolicy:
+    tls:
+      mode: ISTIO_MUTUAL
+    loadBalancer:
+      simple: RANDOM
+  subsets:
+  - name: v1
+    labels:
+      version: v1
+  - name: v2
+    labels:
+      version: v2
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: service-go
+spec:
+  hosts:
+  - service-go
+  http:
+  - route:
+    - destination:
+        host: service-go
+    retries:
+      attempts: 3
+      perTryTimeout: 2s

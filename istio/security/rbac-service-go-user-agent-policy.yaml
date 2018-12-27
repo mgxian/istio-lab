@@ -1,0 +1,23 @@
+apiVersion: rbac.istio.io/v1alpha1
+kind: ServiceRole
+metadata:
+  name: service-go-viewer
+  namespace: default
+spec:
+  rules:
+  - services:
+    - "service-go.default.svc.cluster.local"
+    methods: ["GET"]
+---
+apiVersion: rbac.istio.io/v1alpha1
+kind: ServiceRoleBinding
+metadata:
+  name: bind-service-go-viewer
+  namespace: default
+spec:
+  subjects:
+   - properties:
+      request.headers[User-Agent]: "RBAC-*"
+  roleRef:
+    kind: ServiceRole
+    name: "service-go-viewer"

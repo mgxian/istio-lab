@@ -1,0 +1,22 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: reviews-lua
+spec:
+  workloadLabels:
+    app: reviews
+  filters:
+  - listenerMatch:
+      portNumber: 8080
+      listenerType: SIDECAR_INBOUND #will match with the inbound listener for reviews:8080
+    filterName: envoy.lua
+    filterType: HTTP
+    filterConfig:
+      inlineCode: |
+        function envoy_on_request(request_handle)
+          request_handle:headers():add("foo", "bar")
+        end
+        function envoy_on_response(response_handle)
+          body_size = response_handle:body():length()
+          response_handle:headers():add("response-body-size", tostring(body_size))
+        end

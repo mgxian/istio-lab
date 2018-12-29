@@ -1,0 +1,11 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: redis-proxy
+  labels:
+    app: redis-proxy
+spec:
+  ports:
+    - name: redis-proxy
+      protocol: TCP
+      port: 16379

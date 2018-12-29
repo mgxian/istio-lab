@@ -1,15 +1,15 @@
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
-  name: redis
+  name: redis-proxy
 spec:
   hosts:
-  - redis
+  - redis-proxy
   tcp:
   - match:
-    - port: 6379
+    - port: 16379
     route:
     - destination:
-        host: redis
+        host: redis.foo
         port:
           number: 6379

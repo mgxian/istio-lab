@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-cli
+spec:
+  selector:
+    matchLabels:
+      app: redis-cli
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: redis-cli
+    spec:
+      restartPolicy: Always
+      containers:
+      - name: redis-cli
+        image: redis:5-alpine
+        stdin: true
+        tty: true
+        resources:
+          requests:
+            cpu: 50m
+            memory: 50Mi
+          limits:
+            cpu: 100m
+            memory: 100Mi

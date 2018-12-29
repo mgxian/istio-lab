@@ -23,9 +23,13 @@ spec:
   - match:
     - uri:
         exact: /v1/env
-  rewrite:
-    uri: /env
-  route:
+    rewrite:
+      uri: /env
+    route:
     - destination:
         host: service-go
         subset: v1
+  - route:
+    - destination:
+        host: service-go
+        subset: v2

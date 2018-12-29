@@ -11,13 +11,13 @@ spec:
         host: service-go
     corsPolicy:
       allowOrigin:
-      - will.com
+      - http://www.will.com
       allowMethods:
       - POST
       - GET
-      allowCredentials: false
       allowHeaders:
       - X-Custom-Header
       exposeHeaders:
-      - X-Foo-Bar
-      maxAge: "1d"
+      - X-Expose-Header
+      maxAge: 24h
+      allowCredentials: false

@@ -9,9 +9,13 @@ spec:
   - match:
     - uri:
         exact: /v1/env
-  redirect:
-    uri: /env
-    authority: service-go
+    redirect:
+      uri: /env
+      authority: service-go
+  - route:
+    - destination:
+        host: service-go
+        subset: v1
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
@@ -26,17 +30,3 @@ spec:
   - name: v2
     labels:
       version: v2
----
-apiVersion: networking.istio.io/v1alpha3
-kind: VirtualService
-metadata:
-  name: service-go
-spec:
-  hosts:
-  - service-go
-  http:
-  - route:
-    - destination:
-        host: service-go
-        subset: v1
-        

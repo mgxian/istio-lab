@@ -10,6 +10,6 @@ spec:
     - port: 16379
     route:
     - destination:
-        host: redis.foo
+        host: redis
         port:
           number: 6379

@@ -1,24 +1,41 @@
 apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: https-gateway
+spec:
+  selector:
+    istio: ingressgateway # use Istio default gateway implementation
+  servers:
+  - port:
+      number: 443
+      name: https
+      protocol: HTTPS
+    tls:
+      mode: PASSTHROUGH
+    hosts:
+    - "*"
+---
+apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
-  name: bookinfo-sni
+  name: my-nginx
 spec:
   hosts:
-  - "*.bookinfo.com"
+  - "*"
   gateways:
-  - mygateway
+  - httpbin-gateway
   tls:
   - match:
     - port: 443
       sniHosts:
-      - login.bookinfo.com
+      - "foo.my-nginx"
     route:
     - destination:
-        host: login.prod.svc.cluster.local
+        host: my-nginx.foo
   - match:
     - port: 443
       sniHosts:
-      - reviews.bookinfo.com
+      - "bar.my-nginx"
     route:
     - destination:
-        host: reviews.prod.svc.cluster.local
+        host: my-nginx.bar

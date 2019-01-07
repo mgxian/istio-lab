@@ -1,20 +1,20 @@
 apiVersion: authentication.istio.io/v1alpha1
 kind: Policy
 metadata:
-  name: service-go
+  name: httpbin
 spec:
   targets:
-  - name: service-go
+  - name: httpbin
   peers:
   - mtls:
-      mode: STRICT
+      mode: PERMISSIVE
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
 metadata:
-  name: service-go
+  name: httpbin
 spec:
-  host: "service-go.default.svc.cluster.local"
+  host: "httpbin.default.svc.cluster.local"
   trafficPolicy:
     tls:
       mode: ISTIO_MUTUAL

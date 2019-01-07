@@ -23,19 +23,23 @@ spec:
   hosts:
   - "*"
   gateways:
-  - httpbin-gateway
+  - https-gateway
   tls:
   - match:
     - port: 443
       sniHosts:
-      - "foo.my-nginx"
+      - "foo.my-nginx.com"
     route:
     - destination:
-        host: my-nginx.foo
+        host: my-nginx.foo.svc.cluster.local
+        port:
+          number: 443
   - match:
     - port: 443
       sniHosts:
-      - "bar.my-nginx"
+      - "bar.my-nginx.com"
     route:
     - destination:
-        host: my-nginx.bar
+        host: my-nginx.bar.svc.cluster.local
+        port:
+          number: 443

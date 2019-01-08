@@ -7,3 +7,13 @@ spec:
   - mtls: {}
   targets:
   - name: my-nginx
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: my-nginx
+spec:
+  host: my-nginx
+  trafficPolicy:
+    tls:
+      mode: ISTIO_MUTUAL

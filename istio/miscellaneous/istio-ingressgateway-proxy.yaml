@@ -1,0 +1,55 @@
+static_resources:
+  listeners:
+  - address:
+      socket_address:
+        address: 0.0.0.0
+        port_value: 80
+    filter_chains:
+    - filters:
+      - name: envoy.tcp_proxy
+        config:
+          stat_prefix: ingress_tcp
+          cluster: ingressgateway
+          access_log:
+            - name: envoy.file_access_log
+              config:
+                path: /dev/stdout
+  - address:
+      socket_address:
+        address: 0.0.0.0
+        port_value: 443
+    filter_chains:
+    - filters:
+      - name: envoy.tcp_proxy
+        config:
+          stat_prefix: ingress_tcp
+          cluster: ingressgateway_tls
+          access_log:
+            - name: envoy.file_access_log
+              config:
+                path: /dev/stdout
+  clusters:
+  - name: ingressgateway
+    connect_timeout: 0.25s
+    type: strict_dns
+    lb_policy: round_robin
+    http2_protocol_options: {}
+    hosts:
+    - socket_address:
+        address: istio-ingressgateway.istio-system
+        port_value: 80
+  - name: ingressgateway_tls
+    connect_timeout: 0.25s
+    type: strict_dns
+    lb_policy: round_robin
+    http2_protocol_options: {}
+    hosts:
+    - socket_address:
+        address: istio-ingressgateway.istio-system
+        port_value: 443
+admin:
+  access_log_path: "/dev/null"
+  address:
+    socket_address:
+      address: 0.0.0.0
+      port_value: 8001

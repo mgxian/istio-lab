@@ -1,0 +1,47 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: service-go
+  labels:
+    app: service-go
+spec:
+  selector:
+    app: service-go
+  ports:
+    - name: http
+      port: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service-go-v1
+spec:
+  selector:
+    matchLabels:
+      app: service-go
+      version: v1
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: service-go
+        version: v1
+    spec:
+      restartPolicy: Always
+      containers:
+      - name: service-go
+        image: registry.cn-shanghai.aliyuncs.com/istio-lab/service-go:v1
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: 50m
+            memory: 50Mi
+          limits:
+            cpu: 100m
+            memory: 100Mi
+        livenessProbe:
+          tcpSocket:
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 5

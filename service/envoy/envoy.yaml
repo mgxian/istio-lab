@@ -24,6 +24,9 @@ spec:
                 values:
                 - "true"
       hostNetwork: true
+      tolerations:
+      - operator: Exists
+        effect: NoSchedule
       dnsPolicy: ClusterFirstWithHostNet
       restartPolicy: Always
       containers:

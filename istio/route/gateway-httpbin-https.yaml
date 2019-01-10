@@ -31,4 +31,4 @@ spec:
     - destination:
         port:
           number: 8000
-        host: httpbin.default.svc.cluster.local
+        host: httpbin

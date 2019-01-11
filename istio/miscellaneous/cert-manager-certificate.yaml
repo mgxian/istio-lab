@@ -1,0 +1,23 @@
+apiVersion: certmanager.k8s.io/v1alpha1
+kind: Certificate
+metadata:
+  name: domain-ingress-certs
+  namespace: istio-system
+spec:
+  acme:
+    config:
+    - http01:
+        ingressClass: none
+      domains:
+      - my.will.com
+      - subnet.will.com
+      - www.will.com
+  commonName: my.will.com
+  dnsNames:
+  - my.will.com
+  - subnet.will.com
+  - www.will.com
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt-staging
+  secretName: istio-ingressgateway-certs

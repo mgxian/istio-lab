@@ -62,7 +62,7 @@ def env():
     upstream = [r for r in results if r]
 
     return jsonify({
-        "message": 'python v1',
+        "message": 'python v2',
         "upstream": upstream
     })
 

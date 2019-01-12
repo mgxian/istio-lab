@@ -1,8 +1,11 @@
 import time
 import requests
 from functools import partial
-from apistar import App, Route, http
+from flask import Flask, jsonify, g, request
 from multiprocessing.dummy import Pool as ThreadPool
+
+
+app = Flask(__name__)
 
 
 def getForwardHeaders(request):
@@ -26,6 +29,11 @@ def getForwardHeaders(request):
     return headers
 
 
+@app.before_request
+def before_request():
+    g.forwardHeaders = getForwardHeaders(request)
+
+
 def get_url_response(url, headers={}):
     try:
         start = time.time()
@@ -39,9 +47,8 @@ def get_url_response(url, headers={}):
     return data
 
 
-def env(request: http.Request):
-    forwardHeaders = getForwardHeaders(request)
-
+@app.route("/env")
+def env():
     # service_lua_url = 'http://httpbin.org/delay/3'
     # service_node_url = 'http://httpbin.org/delay/4'
 
@@ -50,25 +57,20 @@ def env(request: http.Request):
 
     services_url = [service_lua_url, service_node_url]
     pool = ThreadPool(2)
-    wrap_get_url_response = partial(get_url_response, headers=forwardHeaders)
+    wrap_get_url_response = partial(get_url_response, headers=g.forwardHeaders)
     results = pool.map(wrap_get_url_response, services_url)
     upstream = [r for r in results if r]
 
-    return {
-        "message": 'python v2',
+    return jsonify({
+        "message": 'python v1',
         "upstream": upstream
-    }
+    })
 
 
+@app.route("/status")
 def status():
-    return 'ok'
+    return "ok"
 
 
-routes = [
-    Route('/env', method='GET', handler=env),
-    Route('/status', method='GET', handler=status),
-]
-
-app = App(routes=routes)
 if __name__ == '__main__':
-    app.serve('0.0.0.0', 80, debug=False)
+    app.run(host='0.0.0.0', port=80)

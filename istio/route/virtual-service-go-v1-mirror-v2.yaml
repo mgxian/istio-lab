@@ -24,7 +24,6 @@ spec:
     - destination:
         host: service-go
         subset: v1
-      weight: 20
     mirror:
       host: service-go
       subset: v2

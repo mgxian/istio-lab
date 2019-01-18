@@ -1,7 +1,7 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: tracing
+  name: tracing-test
   namespace: istio-system
   labels:
     app: jaeger

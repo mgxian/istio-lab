@@ -1,7 +1,7 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: grafana
+  name: grafana-test
   namespace: istio-system
   labels:
     app: grafana

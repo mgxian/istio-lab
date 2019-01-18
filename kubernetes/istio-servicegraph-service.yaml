@@ -1,7 +1,7 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: servicegraph
+  name: servicegraph-test
   namespace: istio-system
   labels:
     app: servicegraph

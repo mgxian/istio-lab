@@ -1,7 +1,7 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: prometheus
+  name: prometheus-test
   namespace: istio-system
   labels:
     app: prometheus

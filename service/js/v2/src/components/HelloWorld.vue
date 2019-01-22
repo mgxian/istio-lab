@@ -24,7 +24,7 @@ export default {
   },
   data() {
     return {
-      msg: 'Welcome to Your Vue.js App',
+      msg: 'Welcome to Istio',
       message: '',
       graphOptions: {},
       response_time: 0,
@@ -124,10 +124,12 @@ export default {
             label: {
               show: true,
               textStyle: {
-                fontSize: 16
+                fontSize: 16,
+                fontWeight: 'bolder',
+                color: '#2c3e50'
               }
             },
-            color: '#41B783',
+            color: '#4fc08d',
             edgeSymbol: ['circle', 'arrow'],
             edgeSymbolSize: [4, 15],
             edgeLabel: {

@@ -1,4 +1,4 @@
-# docker
+### install docker
 yum-config-manager --add-repo http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
 yum makecache fast
 yum install -y yum-utils device-mapper-persistent-data lvm2
@@ -12,7 +12,8 @@ EOF
 systemctl daemon-reload
 systemctl restart docker
 
-# kubeadm
+
+### install kubeadm
 cat <<EOF > /etc/yum.repos.d/kubernetes.repo
 [kubernetes]
 name=Kubernetes
@@ -24,7 +25,8 @@ gpgkey=https://mirrors.aliyun.com/kubernetes/yum/doc/yum-key.gpg https://mirrors
 EOF
 yum install -y kubelet-1.12.4 kubeadm-1.12.4 kubectl-1.12.4 ipvsadm
 
-# basic env
+
+### config basic env
 systemctl stop firewalld
 systemctl disable firewalld
 sed -i 's/SELINUX=permissive/SELINUX=disabled/' /etc/sysconfig/selinux
@@ -62,7 +64,8 @@ cat >/etc/hosts<<EOF
 11.11.11.113 lab3
 EOF
 
-# kubelet
+
+### config kubelet
 DOCKER_CGROUPS=$(docker info | grep 'Cgroup' | cut -d' ' -f3)
 echo $DOCKER_CGROUPS
 cat >/etc/sysconfig/kubelet<<EOF
@@ -73,8 +76,7 @@ systemctl enable docker.service
 systemctl enable kubelet.service
 
 
-
-### master
+### init master
 cat >kubeadm-master.config<<EOF
 apiVersion: kubeadm.k8s.io/v1alpha2
 kind: MasterConfiguration
@@ -96,15 +98,15 @@ kubeadm config images pull --config kubeadm-master.config
 kubeadm init --config kubeadm-master.config
 
 
-######### another teminal
-
+### config kubectl (in another teminal)
 rm -rf $HOME/.kube
 mkdir -p $HOME/.kube
 sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 sudo chown $(id -u):$(id -g) $HOME/.kube/config
 kubectl get nodes
 
-### flannel
+
+### deploy flannel
 curl -s https://raw.githubusercontent.com/coreos/flannel/v0.10.0/Documentation/kube-flannel.yml -o kube-flannel.yml
 sed -i 's@quay.io/coreos/flannel:v0.10.0-amd64@registry.cn-shanghai.aliyuncs.com/gcr-k8s/flannel:v0.10.0-amd64@g' kube-flannel.yml
 sed -i '/node-role.kubernetes.io\/master/d' kube-flannel.yml
@@ -116,7 +118,7 @@ kubectl get pods --namespace kube-system
 kubectl get svc --namespace kube-system
 
 
-### test
+### test k8s cluster
 kubectl create deployment nginx --image=nginx:alpine
 kubectl expose deployment nginx --name=nginx-service --port=80 --target-port=80
 kubectl expose deployment nginx --type=NodePort --name=nginx-service-nodeport --port=80 --target-port=80
@@ -145,7 +147,7 @@ kubectl exec dns-test -- nslookup www.baidu.com
 kubectl exec dns-test -- curl -s -I nginx-service
 
 
-### clean
+### clean test
 kubectl delete deployment nginx
 kubectl delete service nginx-service
 kubectl delete service nginx-service-nodeport

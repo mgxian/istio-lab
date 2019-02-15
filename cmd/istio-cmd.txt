@@ -1,4 +1,4 @@
-# install istio
+### install istio
 sudo yum install -y wget
 wget https://github.com/istio/istio/releases/download/1.0.3/istio-1.0.3-linux.tar.gz
 tar xf istio-1.0.3-linux.tar.gz
@@ -8,7 +8,8 @@ echo 'export PATH=/usr/local/istio/bin:$PATH' | sudo tee /etc/profile.d/istio.sh
 source /etc/profile.d/istio.sh
 istioctl version
 
-# deploy
+
+### official deploy istio
 cp /usr/local/istio/install/kubernetes/istio-demo.yaml /usr/local/istio/install/kubernetes/istio-demo.yaml.ori
 sed -i 's@2048Mi@500Mi@g' /usr/local/istio/install/kubernetes/istio-demo.yaml
 sed -i 's@quay.io/coreos/hyperkube:v1.7.6_coreos.0@registry.cn-shanghai.aliyuncs.com/gcr-k8s/hyperkube:v1.7.6_coreos.0@g' /usr/local/istio/install/kubernetes/istio-demo.yaml
@@ -18,7 +19,8 @@ kubectl apply -f /usr/local/istio/install/kubernetes/istio-demo.yaml
 kubectl get svc -n istio-system
 kubectl get pods -n istio-system
 
-# test
+
+### istio official bookinfo test
 kubectl label namespace default istio-injection=enabled
 kubectl apply -f /usr/local/istio/samples/bookinfo/platform/kube/bookinfo.yaml
 kubectl get services
@@ -34,6 +36,7 @@ echo http://$GATEWAY_URL/productpage
 curl -I http://$GATEWAY_URL/productpage
 
 
+### custom mini istio deploy
 helm template /usr/local/istio/install/kubernetes/helm/istio  \
 --name istio --namespace istio-system \
 --set global.hyperkube.hub=registry.cn-shanghai.aliyuncs.com/gcr-k8s \

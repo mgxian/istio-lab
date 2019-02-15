@@ -1,33 +1,34 @@
+### clone repository and config automatic injection in default namespace
 sudo yum install -y git
 git clone https://github.com/mgxian/istio-lab && cd istio-lab
 kubectl label namespace default istio-injection=enabled
 
 
-# deploy
+### deploy services
 kubectl apply -f service/go/service-go.yaml
 kubectl apply -f service/node/service-node.yaml
 kubectl apply -f service/lua/service-lua.yaml
 kubectl apply -f service/python/service-python.yaml
 kubectl apply -f service/js/service-js.yaml
 
-
-# check
 kubectl get deploy
 kubectl get pod
 kubectl get svc
 
 
-# test
+### test access services
 kubectl apply -f kubernetes/dns-test.yaml
+kubectl get pod
 
-kubectl exec -ti dns-test sh
-nslookup service-go
-curl http://service-go/env
-curl http://service-python/env
-curl -I http://service-js/
+kubectl exec dns-test -c dns-test -- nslookup service-go
+kubectl exec dns-test -c dns-test -- curl http://service-go/env
+kubectl exec dns-test -c dns-test -- curl http://service-node/env
+kubectl exec dns-test -c dns-test -- curl http://service-lua/env
+kubectl exec dns-test -c dns-test -- curl http://service-python/env
+kubectl exec dns-test -c dns-test -- curl -I http://service-js/
 
 
-# route
+### apply route test
 istioctl create -f istio/gateway-js-v1.yaml 
 
 http://11.11.11.112:31380/
@@ -35,12 +36,16 @@ http://11.11.11.112:31380/
 istioctl delete -f istio/gateway-js-v1.yaml 
 istioctl create -f istio/gateway-js-v2.yaml
 
+http://11.11.11.112:31380/
 
-# delete
+
+### delete services
 kubectl delete -f service/go/service-go.yaml
 kubectl delete -f service/node/service-node.yaml
 kubectl delete -f service/lua/service-lua.yaml
 kubectl delete -f service/python/service-python.yaml
 kubectl delete -f service/js/service-js.yaml
 
+
+### config no automatic injection in default namespace
 kubectl label namespace default istio-injection-

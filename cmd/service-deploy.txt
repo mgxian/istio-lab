@@ -1,0 +1,46 @@
+sudo yum install -y git
+git clone https://github.com/mgxian/istio-lab && cd istio-lab
+kubectl label namespace default istio-injection=enabled
+
+
+# deploy
+kubectl apply -f service/go/service-go.yaml
+kubectl apply -f service/node/service-node.yaml
+kubectl apply -f service/lua/service-lua.yaml
+kubectl apply -f service/python/service-python.yaml
+kubectl apply -f service/js/service-js.yaml
+
+
+# check
+kubectl get deploy
+kubectl get pod
+kubectl get svc
+
+
+# test
+kubectl apply -f kubernetes/dns-test.yaml
+
+kubectl exec -ti dns-test sh
+nslookup service-go
+curl http://service-go/env
+curl http://service-python/env
+curl -I http://service-js/
+
+
+# route
+istioctl create -f istio/gateway-js-v1.yaml 
+
+http://11.11.11.112:31380/
+
+istioctl delete -f istio/gateway-js-v1.yaml 
+istioctl create -f istio/gateway-js-v2.yaml
+
+
+# delete
+kubectl delete -f service/go/service-go.yaml
+kubectl delete -f service/node/service-node.yaml
+kubectl delete -f service/lua/service-lua.yaml
+kubectl delete -f service/python/service-python.yaml
+kubectl delete -f service/js/service-js.yaml
+
+kubectl label namespace default istio-injection-

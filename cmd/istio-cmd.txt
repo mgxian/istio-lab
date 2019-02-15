@@ -1,0 +1,57 @@
+# install istio
+sudo yum install -y wget
+wget https://github.com/istio/istio/releases/download/1.0.3/istio-1.0.3-linux.tar.gz
+tar xf istio-1.0.3-linux.tar.gz
+sudo mv istio-1.0.3 /usr/local
+sudo ln -sv /usr/local/istio-1.0.3/ /usr/local/istio
+echo 'export PATH=/usr/local/istio/bin:$PATH' | sudo tee /etc/profile.d/istio.sh
+source /etc/profile.d/istio.sh
+istioctl version
+
+# deploy
+cp /usr/local/istio/install/kubernetes/istio-demo.yaml /usr/local/istio/install/kubernetes/istio-demo.yaml.ori
+sed -i 's@2048Mi@500Mi@g' /usr/local/istio/install/kubernetes/istio-demo.yaml
+sed -i 's@quay.io/coreos/hyperkube:v1.7.6_coreos.0@registry.cn-shanghai.aliyuncs.com/gcr-k8s/hyperkube:v1.7.6_coreos.0@g' /usr/local/istio/install/kubernetes/istio-demo.yaml
+kubectl apply -f /usr/local/istio/install/kubernetes/helm/istio/templates/crds.yaml
+kubectl get crd
+kubectl apply -f /usr/local/istio/install/kubernetes/istio-demo.yaml
+kubectl get svc -n istio-system
+kubectl get pods -n istio-system
+
+# test
+kubectl label namespace default istio-injection=enabled
+kubectl apply -f /usr/local/istio/samples/bookinfo/platform/kube/bookinfo.yaml
+kubectl get services
+kubectl get pods
+kubectl apply -f /usr/local/istio/samples/bookinfo/networking/bookinfo-gateway.yaml
+kubectl get gateway
+
+export INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="http2")].nodePort}')
+export SECURE_INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="https")].nodePort}')
+export INGRESS_HOST=$(kubectl get po -l istio=ingressgateway -n istio-system -o 'jsonpath={.items[0].status.hostIP}')
+export GATEWAY_URL=$INGRESS_HOST:$INGRESS_PORT
+echo http://$GATEWAY_URL/productpage
+curl -I http://$GATEWAY_URL/productpage
+
+
+helm template /usr/local/istio/install/kubernetes/helm/istio  \
+--name istio --namespace istio-system \
+--set global.hyperkube.hub=registry.cn-shanghai.aliyuncs.com/gcr-k8s \
+--set pilot.resources.requests.memory=500Mi \
+--set gateways.istio-ingressgateway.enabled=true \
+--set gateways.istio-egressgateway.enabled=true \
+--set galley.enabled=true \
+--set sidecarInjectorWebhook.enabled=true \
+--set global.mtls.enabled=false \
+--set prometheus.enabled=false \
+--set grafana.enabled=false \
+--set tracing.enabled=false \
+--set global.proxy.envoyStatsd.enabled=false \
+--set servicegraph.enabled=false > istio-mini.yaml
+
+kubectl apply -f /usr/local/istio/install/kubernetes/helm/istio/templates/crds.yaml
+kubectl get crd
+kubectl create ns istio-system
+kubectl apply -f istio-mini.yaml
+kubectl get svc -n istio-system
+kubectl get pod -n istio-system

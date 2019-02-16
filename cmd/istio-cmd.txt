@@ -36,6 +36,16 @@ echo http://$GATEWAY_URL/productpage
 curl -I http://$GATEWAY_URL/productpage
 
 
+### helm install
+wget https://storage.googleapis.com/kubernetes-helm/helm-v2.12.2-linux-amd64.tar.gz
+tar xf helm-v2.12.2-linux-amd64.tar.gz
+sudo mv linux-amd64/ /usr/local/helm-2.12.2
+sudo ln -sv /usr/local/helm-2.12.2 /usr/local/helm
+echo 'export PATH=/usr/local/helm:$PATH' | sudo tee /etc/profile.d/helm.sh
+source /etc/profile.d/helm.sh
+helm version
+
+
 ### custom mini istio deploy
 helm template /usr/local/istio/install/kubernetes/helm/istio  \
 --name istio --namespace istio-system \

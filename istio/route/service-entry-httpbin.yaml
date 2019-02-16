@@ -24,4 +24,3 @@ spec:
     route:
       - destination:
           host: httpbin.org
-        weight: 100

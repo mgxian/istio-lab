@@ -49,3 +49,35 @@ kubectl delete -f service/js/service-js.yaml
 
 ### config no automatic injection in default namespace
 kubectl label namespace default istio-injection-
+
+
+### access service nodePort
+kubectl expose deployment service-js-v1 --type=NodePort --name=service-js-nodeport --port=80 --target-port=80
+SERVICE_JS_PORT=$(kubectl get service service-js-nodeport -o jsonpath='{.spec.ports[0].nodePort}')
+HOST=$(kubectl get node lab2 -o 'jsonpath={.status.addresses[0].address}')
+GATEWAY_URL=$HOST:$SERVICE_JS_PORT
+echo http://$GATEWAY_URL/
+curl -I http://$GATEWAY_URL/
+
+kubectl expose deployment service-python-v1 --type=NodePort --name=service-python-nodeport --port=80 --target-port=80
+SERVICE_PYTHON_PORT=$(kubectl get service service-python-nodeport -o jsonpath='{.spec.ports[0].nodePort}')
+HOST=$(kubectl get node lab2 -o 'jsonpath={.status.addresses[0].address}')
+GATEWAY_URL=$HOST:$SERVICE_PYTHON_PORT
+echo http://$GATEWAY_URL/env
+curl http://$GATEWAY_URL/env
+
+kubectl delete service service-js-nodeport service-python-nodeport
+kubectl delete -f kubernetes/dns-test.yaml
+
+
+### restart pilot
+kubectl delete pod -n istio-system $(kubectl get pod -l app=pilot -n istio-system -o jsonpath='{.items[*].metadata.name}')
+kubectl get pod -l app=pilot -n istio-system
+
+
+### get pilot log
+kubectl logs -f -n istio-system $(kubectl get pod -l app=pilot -n istio-system -o jsonpath='{.items[*].metadata.name}') discovery
+
+
+### disable automatic injection in default namespace
+kubectl label namespace default istio-injection-

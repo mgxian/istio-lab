@@ -1,20 +1,20 @@
 ### install docker
-yum-config-manager --add-repo http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
-yum makecache fast
-yum install -y yum-utils device-mapper-persistent-data lvm2
-yum install -y docker-ce-18.06.1.ce
-mkdir -p /etc/docker
-cat >/etc/docker/daemon.json<<EOF
+sudo yum-config-manager --add-repo http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
+sudo yum makecache fast
+sudo yum install -y yum-utils device-mapper-persistent-data lvm2
+sudo yum install -y docker-ce-18.06.1.ce
+sudo mkdir -p /etc/docker
+sudo tee /etc/docker/daemon.json <<-'EOF'
 {
   "registry-mirrors": ["https://registry.docker-cn.com"]
 }
 EOF
-systemctl daemon-reload
-systemctl restart docker
+sudo systemctl daemon-reload
+sudo systemctl restart docker
 
 
 ### install kubeadm
-cat <<EOF > /etc/yum.repos.d/kubernetes.repo
+sudo tee /etc/yum.repos.d/kubernetes.repo <<-'EOF' 
 [kubernetes]
 name=Kubernetes
 baseurl=https://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-x86_64
@@ -23,25 +23,26 @@ gpgcheck=1
 repo_gpgcheck=1
 gpgkey=https://mirrors.aliyun.com/kubernetes/yum/doc/yum-key.gpg https://mirrors.aliyun.com/kubernetes/yum/doc/rpm-package-key.gpg
 EOF
-yum install -y kubelet-1.12.4 kubeadm-1.12.4 kubectl-1.12.4 ipvsadm
+sudo yum install -y kubelet-1.12.4 kubeadm-1.12.4 kubectl-1.12.4 ipvsadm
 
 
 ### config basic env
-systemctl stop firewalld
-systemctl disable firewalld
-sed -i 's/SELINUX=permissive/SELINUX=disabled/' /etc/sysconfig/selinux
-setenforce 0
+sudo systemctl stop firewalld
+sudo systemctl disable firewalld
+sudo sed -i 's/SELINUX=permissive/SELINUX=disabled/' /etc/sysconfig/selinux
+sudo setenforce 0
 
-swapoff -a
-sed -ri 's@(^/.*swap.*)@#\1@g' /etc/fstab
+sudo swapoff -a
+sudo sed -ri 's@(^/.*swap.*)@#\1@g' /etc/fstab
+free -m
 
-modprobe ip_vs
-modprobe ip_vs_rr
-modprobe ip_vs_wrr
-modprobe ip_vs_sh
-modprobe nf_conntrack_ipv4
-lsmod | grep ip_vs
-cat >/etc/modules-load.d/k8s-ipvs.conf<<EOF
+sudo modprobe ip_vs
+sudo modprobe ip_vs_rr
+sudo modprobe ip_vs_wrr
+sudo modprobe ip_vs_sh
+sudo modprobe nf_conntrack_ipv4
+sudo lsmod | grep ip_vs
+sudo tee /etc/modules-load.d/k8s-ipvs.conf <<-'EOF'
 ip_vs
 ip_vs_rr
 ip_vs_wrr
@@ -49,31 +50,35 @@ ip_vs_sh
 nf_conntrack_ipv4
 EOF
 
-cat >/etc/sysctl.d/k8s.conf<<EOF
+sudo tee /etc/sysctl.d/k8s.conf <<-'EOF'
 net.bridge.bridge-nf-call-ip6tables = 1
 net.bridge.bridge-nf-call-iptables = 1
 vm.swappiness=0
 EOF
-sysctl --system
+sudo sysctl --system
 
-cat >/etc/hosts<<EOF
+sudo tee /etc/hosts <<-'EOF'
 127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
 ::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
 11.11.11.111 lab1
 11.11.11.112 lab2
 11.11.11.113 lab3
 EOF
+ping -c2 lab1
+ping -c2 lab2
+ping -c2 lab3
 
 
 ### config kubelet
-DOCKER_CGROUPS=$(docker info | grep 'Cgroup' | cut -d' ' -f3)
+DOCKER_CGROUPS=$(sudo docker info | grep 'Cgroup' | cut -d' ' -f3)
 echo $DOCKER_CGROUPS
-cat >/etc/sysconfig/kubelet<<EOF
+sudo tee /etc/sysconfig/kubelet <<-EOF
 KUBELET_EXTRA_ARGS="--cgroup-driver=$DOCKER_CGROUPS --pod-infra-container-image=registry.cn-hangzhou.aliyuncs.com/google_containers/pause-amd64:3.1"
 EOF
-systemctl daemon-reload
-systemctl enable docker.service
-systemctl enable kubelet.service
+sudo cat /etc/sysconfig/kubelet
+sudo systemctl daemon-reload
+sudo systemctl enable docker.service
+sudo systemctl enable kubelet.service
 
 
 ### init master
@@ -94,8 +99,8 @@ kubeProxy:
     mode: ipvs
 EOF
 
-kubeadm config images pull --config kubeadm-master.config
-kubeadm init --config kubeadm-master.config
+sudo kubeadm config images pull --config kubeadm-master.config
+sudo kubeadm init --config kubeadm-master.config
 
 
 ### config kubectl (in another teminal)

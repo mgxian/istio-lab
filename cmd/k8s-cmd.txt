@@ -157,3 +157,7 @@ kubectl delete deployment nginx
 kubectl delete service nginx-service
 kubectl delete service nginx-service-nodeport
 kubectl delete -f dns-test.yaml
+
+
+### vagrant save k8s-1.12.4
+vagrant snapshot save k8s-1.12.4

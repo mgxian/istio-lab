@@ -20,6 +20,10 @@ kubectl get svc -n istio-system
 kubectl get pods -n istio-system
 
 
+### vagrant save istio-1.0.3-full
+vagrant snapshot save istio-1.0.3-full
+
+
 ### istio official bookinfo test
 kubectl label namespace default istio-injection=enabled
 kubectl apply -f /usr/local/istio/samples/bookinfo/platform/kube/bookinfo.yaml
@@ -68,3 +72,7 @@ kubectl create ns istio-system
 kubectl apply -f istio-mini.yaml
 kubectl get svc -n istio-system
 kubectl get pod -n istio-system
+
+
+### vagrant save istio-1.0.3-mini
+vagrant snapshot save istio-1.0.3-mini
